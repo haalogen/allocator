@@ -2,14 +2,38 @@
 #include <vector>
 using namespace std;
 
-template <class T> class MyAllocator {
+//struct buffer with counter
+template <class T> struct Buffer {
+    int cnt=0;
+    T* buf;
+};
 
+template <class T> class MyAllocator {
+private:
     int _k;
-    T* _p;
+    Buffer<T> *_b;
 public:
-//?    MyAllocator() {}
-//?    ~MyAllocator() {}
-    void allocate(int k) {}
+// если алл-р выделяет -- счетчик удалений
+// если алл-р просто пользует переданный буфер -- ничего выделять/освобождать не надо
+    MyAllocator(int k=10) {
+        cout << "Constructor \n";
+        _k = k;
+        //create new buffer var & allocate new memory for buffer; buf.cnt++
+        
+        //I am the creator
+        _b->cnt = 1;
+        _b->buf = allocate(k);
+    }
+    MyAllocator(const MyAllocator& m) {
+        cout << "Copy constructor \n";
+        //simply copy buffer adress; buf.cnt++ 
+        _b = m._b;
+        _b->cnt++;
+    }
+    ~MyAllocator() {
+        cout << "Destructor \n";
+    }
+    T* allocate(int k) { return NULL; } //google
     void deallocate(T* p) {}
     void construct() {}
     void destroy() {}
@@ -23,9 +47,10 @@ public:
 
 int main()
 {
-    MyAllocator<int> al;
+    MyAllocator<int> al(5);
     cout << sizeof(al) << endl;
+    MyAllocator<int> bl(al);
 
     
-//    vector<int, MyAllocator> v(5)
+//    vector<int, MyAllocator> v(5);
 }
